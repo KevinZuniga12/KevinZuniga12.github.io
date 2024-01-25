@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+
+    <title>Pokedex</title>
+</head>
+
+<style>
+    body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .container {
+        width: 600px;
+        height: 600px;
+        display: inline;
+        justify-content: center;
+        align-items: center;
+        margin-left: 30%;
+        margin-top: 2%;
+    }
+
+    .cont2 {
+        width: 100%;
+        height: 600px;
+        margin-top: 2%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: rgb(135, 33, 33);
+    }
+
+    .prevPokemon {
+        text-align: center;
+        margin: 10px;
+        background-color: rgb(75, 28, 28);
+        color: white;
+        border-radius: 3%;
+    }
+</style>
+
+<body class="p-3 mb-2 bg-danger text-emphasis-danger">
+
+    <div class="container p-3 mb-2 bg-black text-emphasis-danger"    >
+        <div class="card m-5 border border-5 border-secondary-subtle" style="width: 28rem;">
+            <div id="poke-1" class="card-img-center text-center"></div>
+            <div class="card-body" >
+                <h5 class="card-title text-center" id="nom">Pokemon:</h5>
+                <p class="text-center" id="alt">Center aligned text on all viewport sizes.</p>
+                <p class="text-center" id="pes">Center aligned text on all viewport sizes.</p>
+
+                <div class="d-grid gap-2 col-6 mx-auto">
+                    
+                </div>
+            </div>
+        </div>
+        <button class="btn btn-warning"
+        type="button" id="pokeButton">Consultar Pokemon</button>
+    </div>
+
+    <div class="cont2" id="cont2" style=""></div>
+
+<script>
+
+let previousPokemonList = [];
+
+document.getElementById('pokeButton').addEventListener('click', function(){
+    fetch("https://pokeapi.co/api/v2/pokemon?limit=1000")
+        .then(response => response.json())
+        .then(data => {
+            for (let index = 0; index < 2; index++) {
+                const totalPokemon = data.results.length;
+                const randomIndex = Math.floor(Math.random() * totalPokemon);
+
+                const randomPokemon = data.results[randomIndex];
+
+                fetch(randomPokemon.url)
+                    .then(response => response.json())
+                    .then(pokemonData => {
+                        const spriteUrl = pokemonData.sprites.front_default;
+
+                        const imgElement = document.createElement("img");
+                        imgElement.src = spriteUrl;
+                        imgElement.width = 200;
+                        imgElement.height = 200;
+
+                        const name = pokemonData.name;
+                        document.getElementById('nom').innerHTML = name;
+
+                        const altura = pokemonData.height;
+                        document.getElementById('alt').innerHTML = "Altura "+ altura + " mts";
+
+                        const peso = pokemonData.weight;
+                        document.getElementById('pes').innerHTML = "Peso: "+ peso + " kg";
+
+                        const currentPokemon = {
+                            name: name,
+                            height: altura,
+                            weight: peso,
+                            spriteUrl: spriteUrl
+                        };
+
+                        previousPokemonList.push(currentPokemon);
+
+                        document.getElementById("poke-1").innerHTML = ""; 
+                        document.getElementById("poke-1").appendChild(imgElement);
+
+                        AnteriorPoke();
+                    });
+            }
+        });
+});
+
+function AnteriorPoke() {
+    const cont2Element = document.getElementById("cont2");
+    cont2Element.innerHTML = ""; 
+
+    if (previousPokemonList.length > 0) {
+        previousPokemonList.forEach((pokemon, index) => {
+            const prevPokemonElement = document.createElement("div");
+            prevPokemonElement.classList.add("prevPokemon");
+
+            const prevImgElement = document.createElement("img");
+            prevImgElement.src = pokemon.spriteUrl;
+
+            const nameElement = document.createElement("p");
+            nameElement.innerHTML = pokemon.name;
+
+            const alturaElement = document.createElement("p");
+            alturaElement.innerHTML = pokemon.height + " mts";
+
+            const pesoElement = document.createElement("p");
+            pesoElement.innerHTML = pokemon.weight + " kg";
+
+            prevPokemonElement.appendChild(prevImgElement);
+            prevPokemonElement.appendChild(nameElement);
+            prevPokemonElement.appendChild(alturaElement);
+            prevPokemonElement.appendChild(pesoElement);
+
+            cont2Element.appendChild(prevPokemonElement);
+        });
+    }
+}
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+</body>
+</html>
